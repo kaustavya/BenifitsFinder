@@ -1,0 +1,30 @@
+# backend/docker-compose.yml
+version: "3.8"
+services:
+  backend:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app/app
+      - ./tmp:/app/tmp
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: benefitsfinder-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: benefitsfinder
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

@@ -12,6 +12,7 @@ import Questionnaire from "./pages/Questionnaire";
 import Placeholder from "./pages/Placeholder";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+import Submissions from "./pages/Submissions";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="results" element={<Placeholder title="Eligible Public-Aid Programs" />} />
             <Route path="resources" element={<Placeholder title="Resources" />} />
             <Route path="feedback" element={<Placeholder title="We Value Your Feedback" />} />
+            <Route path="submissions" element={<Submissions />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

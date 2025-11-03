@@ -37,6 +37,7 @@ export default function Header() {
             { to: "/results", label: "Results" },
             { to: "/resources", label: "Resources" },
             { to: "/feedback", label: "Feedback" },
+            { to: "/submissions", label: "Submissions" }, // Admin/data viewer
           ].map((item) => (
             <NavLink
               key={item.to}

@@ -11,6 +11,17 @@ import {
   ClipboardList,
 } from "lucide-react";
 
+// Add this helper function at the top (outside the component)
+async function submitEligibility(formData: any) {
+  const response = await fetch("/api/eligibility", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(formData),
+  });
+  if (!response.ok) throw new Error("Failed to fetch eligibility");
+  return await response.json();
+}
+
 export default function Questionnaire() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -29,6 +40,8 @@ export default function Questionnaire() {
     housing: "",
     benefits: [] as string[],
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const toggleBenefit = (value: string) => {
     setForm((f) => {
@@ -522,11 +535,27 @@ export default function Questionnaire() {
               Edit Answers
             </button>
             <button
-              onClick={() => navigate("/results")}
+              onClick={async () => {
+                setLoading(true);
+                setError(null);
+                try {
+                  const result = await submitEligibility(form);
+                  // You can handle the result here (e.g., navigate, show results, etc.)
+                  navigate("/results");
+                } catch (err: any) {
+                  setError(err.message || "Unknown error");
+                } finally {
+                  setLoading(false);
+                }
+              }}
               className="px-5 py-2 rounded-md bg-primary text-white"
+              disabled={loading}
             >
-              Confirm & Finish
+              {loading ? "Submitting..." : "Confirm & Finish"}
             </button>
+            {error && (
+              <div className="text-red-600 text-sm mt-2">{error}</div>
+            )}
           </>
         ) : (
           <>

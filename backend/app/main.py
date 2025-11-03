@@ -10,6 +10,9 @@ from app.models import QuestionnaireRequest, EligibilityResponse, OCRRequest, OC
 from app.eligibility import calculate_eligibility
 from app.pdf_utils import render_benefit_summary_to_html, generate_pdf_from_html
 from app.config import settings
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app.models import Base, EligibilitySubmission
 
 app = FastAPI(title="BenefitsFinder API", version="1.0.0")
 
@@ -23,6 +26,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# SQLAlchemy setup
+MYSQL_USER = os.getenv("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "password")
+MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
+MYSQL_DB = os.getenv("MYSQL_DB", "benefitsfinder")
+SQLALCHEMY_DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}/{MYSQL_DB}"
+engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True, future=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Create tables if not exist
+Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def read_root():
@@ -36,10 +50,17 @@ def read_root():
 @app.post("/api/eligibility", response_model=EligibilityResponse)
 def check_eligibility(questionnaire: QuestionnaireRequest):
     """
-    Calculate benefit eligibility based on questionnaire responses.
+    Calculate benefit eligibility based on questionnaire responses and save submission.
     """
     try:
         eligible_benefits: List = calculate_eligibility(questionnaire)
+        # Save submission to DB
+        db = SessionLocal()
+        submission = EligibilitySubmission(submission_data=questionnaire.model_dump())
+        db.add(submission)
+        db.commit()
+        db.refresh(submission)
+        db.close()
         return EligibilityResponse(eligible_benefits=eligible_benefits, user_data=questionnaire)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -116,6 +137,20 @@ def create_benefit_pdf(questionnaire: QuestionnaireRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"PDF generation failed: {str(e)}")
+
+
+@app.get("/api/submissions")
+def get_submissions():
+    """
+    Return all eligibility submissions (for admin/demo purposes).
+    """
+    db = SessionLocal()
+    submissions = db.query(EligibilitySubmission).all()
+    db.close()
+    return [
+        {"id": s.id, "data": s.submission_data, "created_at": str(s.created_at)}
+        for s in submissions
+    ]
 
 
 if __name__ == "__main__":

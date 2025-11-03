@@ -2,7 +2,10 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from enum import Enum
+from sqlalchemy import Column, Integer, String, JSON, TIMESTAMP, ForeignKey
+from sqlalchemy.orm import declarative_base
 
+Base = declarative_base()
 
 class HouseholdSize(str, Enum):
     ONE = "1"
@@ -45,5 +48,21 @@ class OCRRequest(BaseModel):
 class OCRResponse(BaseModel):
     name: Optional[str]
     income: Optional[float]
-    address: Optional[str] 
+    address: Optional[str]
+
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(255), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    created_at = Column(TIMESTAMP)
+
+
+class EligibilitySubmission(Base):
+    __tablename__ = 'eligibility_submissions'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=True)
+    submission_data = Column(JSON, nullable=False)
+    created_at = Column(TIMESTAMP)
 
