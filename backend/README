@@ -1,0 +1,15 @@
+# BenefitsFinder — Backend (FastAPI)
+
+## What’s included
+- FastAPI app with endpoints:
+  - `POST /api/eligibility` — returns eligibility & confidence scores
+  - `POST /api/ocr` — parses basic fields from OCR text (name, income, address)
+  - `POST /api/pdf` — generates a PDF summary (returns application/pdf)
+
+## Quick start (local)
+1. Create and activate a venv:
+   ```bash
+   cd backend
+   python -m venv venv
+   source venv/bin/activate    # Windows: venv\Scripts\activate
+   pip install -r requirements.txt
