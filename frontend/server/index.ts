@@ -30,5 +30,15 @@ export function createServer() {
       console.warn("Digilocker routes not available:", e);
     });
 
+  // Feedback endpoints
+  import("./routes/feedback")
+    .then(({ submitFeedback, listFeedback }) => {
+      app.post("/api/feedback", submitFeedback);
+      app.get("/api/feedback", listFeedback);
+    })
+    .catch((e) => {
+      console.warn("Feedback routes not available:", e);
+    });
+
   return app;
 }

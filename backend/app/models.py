@@ -56,6 +56,8 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
+    name = Column(String(255))
+    age = Column(Integer)
     created_at = Column(TIMESTAMP)
 
 
@@ -66,3 +68,20 @@ class EligibilitySubmission(Base):
     submission_data = Column(JSON, nullable=False)
     created_at = Column(TIMESTAMP)
 
+# app/models.py
+from sqlalchemy import Column, Integer, String, Float, Boolean, Text
+from .database import Base
+
+class BenefitORM(Base):
+    __tablename__ = "benefits"
+
+    id = Column(Integer, primary_key=True, index=True)
+    benefit_id = Column(String, unique=True, nullable=False)
+    name = Column(String, nullable=False)
+    description = Column(Text)
+    estimated_amount = Column(String)
+    confidence_score = Column(Float, default=0)
+    requirements = Column(Text)
+    application_url = Column(String)
+    documents_needed = Column(Text)
+    is_active = Column(Boolean, default=True)

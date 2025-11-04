@@ -11,17 +11,6 @@ import {
   ClipboardList,
 } from "lucide-react";
 
-// Add this helper function at the top (outside the component)
-async function submitEligibility(formData: any) {
-  const response = await fetch("/api/eligibility", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData),
-  });
-  if (!response.ok) throw new Error("Failed to fetch eligibility");
-  return await response.json();
-}
-
 export default function Questionnaire() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -40,8 +29,6 @@ export default function Questionnaire() {
     housing: "",
     benefits: [] as string[],
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const toggleBenefit = (value: string) => {
     setForm((f) => {
@@ -60,14 +47,20 @@ export default function Questionnaire() {
       case 1:
         return (
           form.age !== "" &&
+          Number(form.age) > 0 &&
           form.income !== "" &&
           form.household !== "" &&
+          Number(form.household) > 0 &&
           form.state !== "" &&
           form.gender !== "" &&
           form.occupation !== ""
         );
       case 2:
-        return form.maritalStatus !== "" && form.dependents !== "";
+        return (
+          form.maritalStatus !== "" &&
+          form.dependents !== "" &&
+          Number(form.dependents) >= 0
+        );
       case 3:
         return form.education !== "" && form.disability !== "";
       case 4:
@@ -151,8 +144,16 @@ export default function Questionnaire() {
               <p className="text-xs text-muted-foreground mb-2">Example: 30</p>
               <input
                 type="number"
+                min={0}
+                step={1}
                 value={form.age}
-                onChange={(e) => setForm({ ...form, age: e.target.value })}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  if (raw === "") return setForm({ ...form, age: "" });
+                  const num = Math.floor(Number(raw));
+                  if (isNaN(num)) return;
+                  setForm({ ...form, age: String(Math.max(0, num)) });
+                }}
                 placeholder="Enter your age"
                 className="w-full h-12 rounded-md border px-3 focus:outline-none focus:ring-2 focus:ring-sky-300"
               />
@@ -172,8 +173,14 @@ export default function Questionnaire() {
               </p>
               <input
                 type="text"
+                inputMode="numeric"
                 value={form.income}
-                onChange={(e) => setForm({ ...form, income: e.target.value })}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  // remove any negative signs and keep digits, commas and dots
+                  const sanitized = raw.replace(/-/g, "").trim();
+                  setForm({ ...form, income: sanitized });
+                }}
                 placeholder="Enter your income"
                 className="w-full h-12 rounded-md border px-3 focus:outline-none focus:ring-2 focus:ring-emerald-300"
               />
@@ -191,10 +198,16 @@ export default function Questionnaire() {
               <p className="text-xs text-muted-foreground mb-2">Example: 4</p>
               <input
                 type="number"
+                min={0}
+                step={1}
                 value={form.household}
-                onChange={(e) =>
-                  setForm({ ...form, household: e.target.value })
-                }
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  if (raw === "") return setForm({ ...form, household: "" });
+                  const num = Math.floor(Number(raw));
+                  if (isNaN(num)) return;
+                  setForm({ ...form, household: String(Math.max(0, num)) });
+                }}
                 placeholder="Enter household size"
                 className="w-full h-12 rounded-md border px-3 focus:outline-none focus:ring-2 focus:ring-sky-300"
               />
@@ -317,10 +330,16 @@ export default function Questionnaire() {
               <p className="text-xs text-muted-foreground mb-2">Example: 2</p>
               <input
                 type="number"
+                min={0}
+                step={1}
                 value={form.dependents}
-                onChange={(e) =>
-                  setForm({ ...form, dependents: e.target.value })
-                }
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  if (raw === "") return setForm({ ...form, dependents: "" });
+                  const num = Math.floor(Number(raw));
+                  if (isNaN(num)) return;
+                  setForm({ ...form, dependents: String(Math.max(0, num)) });
+                }}
                 placeholder="Enter number of dependents"
                 className="w-full h-12 rounded-md border px-3 focus:outline-none focus:ring-2 focus:ring-sky-300"
               />
@@ -535,27 +554,11 @@ export default function Questionnaire() {
               Edit Answers
             </button>
             <button
-              onClick={async () => {
-                setLoading(true);
-                setError(null);
-                try {
-                  const result = await submitEligibility(form);
-                  // You can handle the result here (e.g., navigate, show results, etc.)
-                  navigate("/results");
-                } catch (err: any) {
-                  setError(err.message || "Unknown error");
-                } finally {
-                  setLoading(false);
-                }
-              }}
+              onClick={() => navigate("/results")}
               className="px-5 py-2 rounded-md bg-primary text-white"
-              disabled={loading}
             >
-              {loading ? "Submitting..." : "Confirm & Finish"}
+              Confirm & Finish
             </button>
-            {error && (
-              <div className="text-red-600 text-sm mt-2">{error}</div>
-            )}
           </>
         ) : (
           <>

@@ -12,49 +12,52 @@
    * A different format will require also updating the theme in tailwind.config.ts.
   */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Charcoal background (soft, not pure black) */
+    --background: 230 8% 12%; /* deep charcoal */
+    --foreground: 230 6% 94%; /* soft off-white text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 230 7% 16%; /* slightly lighter than background */
+    --card-foreground: 230 6% 94%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 230 7% 16%;
+    --popover-foreground: 230 6% 94%;
 
-    --primary: 271 52% 42%;
+    /* Primary violet: #7C3AED */
+    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
+    --primary-rgb: 124, 58, 237;
 
-    --secondary: 270 30% 96%;
-    --secondary-foreground: 271 52% 20%;
+    --secondary: 230 6% 30%;
+    --secondary-foreground: 230 6% 94%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 230 6% 18%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 270 56% 92%;
-    --accent-foreground: 271 52% 20%;
+    --accent: 262 72% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 348 80% 50%;
+    --destructive-foreground: 230 6% 94%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 271 52% 42%;
+    --border: 230 6% 18%;
+    --input: 230 6% 20%;
+    --ring: 262 72% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    --sidebar-background: 230 8% 12%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-foreground: 230 6% 94%;
 
-    --sidebar-primary: 271 52% 42%;
+    --sidebar-primary: 262 83% 58%;
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 100%;
 
-    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent: 230 6% 18%;
 
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-accent-foreground: 230 6% 94%;
 
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 230 6% 14%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
@@ -168,13 +171,13 @@
     font-family: Poppins, Inter, system-ui;
     font-size: 1.75rem;
     font-weight: 700;
-    color: hsl(var(--foreground));
+    color: hsl(var(--primary));
   }
   h3 {
     font-family: Poppins, Inter, system-ui;
     font-size: 1.25rem;
     font-weight: 600;
-    color: hsl(var(--foreground));
+    color: hsl(var(--primary));
   }
 
   /* Utility classes for mixed bright/dark text */
@@ -231,9 +234,10 @@
 
 /* Card styles for questionnaire */
 .card {
-  background: white;
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
   border-radius: 0.75rem;
-  box-shadow: 0 6px 18px rgba(16, 24, 40, 0.06);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
   padding: 1.25rem;
 }
 
@@ -257,12 +261,68 @@
   transition:
     transform 160ms ease,
     box-shadow 160ms ease;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.12);
+  border-radius: 0.65rem;
 }
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(14, 165, 233, 0.12);
+  box-shadow:
+    0 18px 60px rgba(var(--primary-rgb), 0.24),
+    0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* Subtle violet glow for emphasis */
+.btn-primary.glow {
+  box-shadow: 0 18px 60px rgba(var(--primary-rgb), 0.24);
+}
+
+.bg-primary {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.12);
+  transition:
+    box-shadow 180ms ease,
+    transform 160ms ease;
+  border-radius: 0.65rem;
+}
+.bg-primary:hover {
+  box-shadow:
+    0 18px 60px rgba(var(--primary-rgb), 0.24),
+    0 2px 8px rgba(0, 0, 0, 0.45);
+  transform: translateY(-2px);
+}
+
+/* Secondary button styles */
+.btn-secondary,
+.bg-secondary {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border-radius: 0.6rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary:hover {
+  filter: brightness(0.95);
 }
 
 .btn-ghost:hover {
   transform: translateY(-2px);
+}
+
+/* Replace explicit light backgrounds used across components with dark card tone for soft balanced aesthetic */
+.bg-white {
+  background-color: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+}
+
+/* soft borders for light-on-dark */
+.border-white\/30 {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* slightly rounded global elements */
+.rounded-md {
+  border-radius: 0.6rem !important;
 }

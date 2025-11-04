@@ -7,21 +7,10 @@ import { createServer } from "./server";
 export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
-    port: 3000,
+    port: 8080,
     fs: {
-      allow: [
-        "./client",
-        "./shared",
-        path.resolve(__dirname), // <-- add project root
-      ],
+      allow: ["./client", "./shared", "./", "./public"], // Added root and public to allow list
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
-    },
-    proxy: {
-      // Proxy API requests to backend
-      "/api": {
-        target: "http://localhost:8080",
-        changeOrigin: true,
-      },
     },
   },
   build: {
